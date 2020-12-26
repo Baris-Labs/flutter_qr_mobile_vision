@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
+import 'package:qr_mobile_vision/qr_barcode.dart';
 import 'package:qr_mobile_vision/qr_mobile_vision.dart';
 
 final WidgetBuilder _defaultNotStartedBuilder = (context) => new Text("Camera Loading ...");
@@ -32,7 +33,7 @@ class QrCamera extends StatefulWidget {
         super(key: key);
 
   final BoxFit fit;
-  final ValueChanged<String> qrCodeCallback;
+  final ValueChanged<List<Barcode>> qrCodeCallback;
   final Widget child;
   final WidgetBuilder notStartedBuilder;
   final WidgetBuilder offscreenBuilder;

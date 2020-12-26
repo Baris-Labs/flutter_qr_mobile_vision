@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:qr_mobile_vision/qr_barcode.dart';
 
 class PreviewDetails {
   num width;
@@ -9,8 +10,7 @@ class PreviewDetails {
   num sensorOrientation;
   int textureId;
 
-  PreviewDetails(
-      this.width, this.height, this.sensorOrientation, this.textureId);
+  PreviewDetails(this.width, this.height, this.sensorOrientation, this.textureId);
 }
 
 enum BarcodeFormats {
@@ -35,8 +35,7 @@ const _defaultBarcodeFormats = const [
 ];
 
 class QrMobileVision {
-  static const MethodChannel _channel =
-      const MethodChannel('com.github.rmtmckenzie/qr_mobile_vision');
+  static const MethodChannel _channel = const MethodChannel('com.github.rmtmckenzie/qr_mobile_vision');
   static QrChannelReader channelReader = new QrChannelReader(_channel);
 
   //Set target size before starting
@@ -49,17 +48,10 @@ class QrMobileVision {
     final _formats = formats ?? _defaultBarcodeFormats;
     assert(_formats.length > 0);
 
-    List<String> formatStrings = _formats
-        .map((format) => format.toString().split('.')[1])
-        .toList(growable: false);
+    List<String> formatStrings = _formats.map((format) => format.toString().split('.')[1]).toList(growable: false);
 
     channelReader.setQrCodeHandler(qrCodeHandler);
-    var details = await _channel.invokeMethod('start', {
-      'targetWidth': width,
-      'targetHeight': height,
-      'heartbeatTimeout': 0,
-      'formats': formatStrings
-    });
+    var details = await _channel.invokeMethod('start', {'targetWidth': width, 'targetHeight': height, 'heartbeatTimeout': 0, 'formats': formatStrings});
 
     // invokeMethod returns Map<dynamic,...> in dart 2.0
     assert(details is Map<dynamic, dynamic>);
@@ -69,8 +61,7 @@ class QrMobileVision {
     num surfaceHeight = details["surfaceHeight"];
     num surfaceWidth = details["surfaceWidth"];
 
-    return new PreviewDetails(
-        surfaceWidth, surfaceHeight, orientation, textureId);
+    return new PreviewDetails(surfaceWidth, surfaceHeight, orientation, textureId);
   }
 
   static Future stop() {
@@ -89,7 +80,7 @@ class QrMobileVision {
 
 enum FrameRotation { none, ninetyCC, oneeighty, twoseventyCC }
 
-typedef void QRCodeHandler(String qr);
+typedef void QRCodeHandler(List<Barcode> qr);
 
 class QrChannelReader {
   QrChannelReader(this.channel) {
@@ -97,8 +88,12 @@ class QrChannelReader {
       switch (call.method) {
         case 'qrRead':
           if (qrCodeHandler != null) {
-            assert(call.arguments is String);
-            qrCodeHandler(call.arguments);
+            List<Barcode> barcodes = List<Barcode>();
+            assert(call.arguments is List<dynamic> && call.arguments.length > 0);
+            call.arguments.forEach((ele) {
+              barcodes.add(Barcode.fromJson(Map<String, dynamic>.from(ele)));
+            });
+            qrCodeHandler(barcodes);
           }
           break;
         default:
