@@ -48,7 +48,7 @@ class _MyAppState extends State<MyApp> {
           children: <Widget>[
             camState
                 ? new SizedBox(
-                    width: 500.0,
+                    width: 300.0,
                     height: 500.0,
                     child: new QrCamera(
                       onError: (context, error) => Text(
@@ -68,7 +68,7 @@ class _MyAppState extends State<MyApp> {
                       ),
                     ),
                   )
-                : new Center(child: new Text("Camera inactive")),
+                : Expanded(child: new Center(child: new Text("Camera inactive"))),
             Expanded(
               child: ListView.separated(
                   separatorBuilder: (context, index) {
